@@ -1,0 +1,13 @@
+package dev.abhaya.mindstack;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class MindStackApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}
