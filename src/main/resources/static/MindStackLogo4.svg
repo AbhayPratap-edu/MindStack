@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Metallic light blue gradient -->
+    <linearGradient id="metalBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="50%" stop-color="#7DD3FC"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="96" fill="#1E293B"/>
+
+  <!-- Stack layers -->
+  <rect x="136" y="152" width="240" height="48" rx="12" fill="#38BDF8"/>
+  <rect x="120" y="208" width="272" height="48" rx="12" fill="#0EA5E9"/>
+  <rect x="104" y="264" width="304" height="48" rx="12" fill="#0284C7"/>
+
+  <!-- MS lettering in metallic light blue -->
+  <!-- M -->
+  <path d="M176 312 V216 L216 256 L256 216 V312" fill="none" stroke="url(#metalBlue)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- S -->
+  <path d="M296 228            C320 212, 352 212, 352 236            C352 256, 296 252, 296 276            C296 300, 336 304, 360 288" fill="none" stroke="url(#metalBlue)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

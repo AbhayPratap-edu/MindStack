@@ -1,0 +1,97 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Metallic light blue gradient -->
+    <linearGradient id="metalBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="50%" stop-color="#7DD3FC"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    
+    <!-- Vibrant accent gradient -->
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+    
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Subtle shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background with subtle gradient -->
+  <rect width="512" height="512" rx="96" fill="#0F172A"/>
+  <rect width="512" height="512" rx="96" fill="url(#accentGradient)" opacity="0.05"/>
+  
+  <!-- Stack layers representing organization -->
+  <g filter="url(#shadow)">
+    <rect x="136" y="140" width="240" height="44" rx="12" fill="#38BDF8" opacity="0.9"/>
+    <rect x="120" y="192" width="272" height="44" rx="12" fill="#0EA5E9" opacity="0.95"/>
+    <rect x="104" y="244" width="304" height="44" rx="12" fill="#0284C7"/>
+  </g>
+  
+  <!-- Feature icons integrated into design -->
+  <g opacity="0.3">
+    <!-- Note icon (top left) -->
+    <rect x="145" y="148" width="24" height="28" rx="2" fill="#E0F2FE"/>
+    <line x1="152" y1="156" x2="162" y2="156" stroke="#0EA5E9" stroke-width="1.5"/>
+    <line x1="152" y1="161" x2="162" y2="161" stroke="#0EA5E9" stroke-width="1.5"/>
+    <line x1="152" y1="166" x2="158" y2="166" stroke="#0EA5E9" stroke-width="1.5"/>
+    
+    <!-- Checkbox icon (top right) -->
+    <rect x="343" y="148" width="24" height="24" rx="4" fill="none" stroke="#E0F2FE" stroke-width="2"/>
+    <path d="M348 158 L354 164 L362 152" fill="none" stroke="#E0F2FE" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- Mind map nodes (middle right) -->
+    <circle cx="355" cy="206" r="6" fill="#E0F2FE"/>
+    <circle cx="370" cy="200" r="4" fill="#E0F2FE"/>
+    <circle cx="370" cy="212" r="4" fill="#E0F2FE"/>
+    <line x1="361" y1="206" x2="366" y2="203" stroke="#E0F2FE" stroke-width="1.5"/>
+    <line x1="361" y1="206" x2="366" y2="209" stroke="#E0F2FE" stroke-width="1.5"/>
+    
+    <!-- Roadmap path (bottom) -->
+    <path d="M115 258 L135 268 L155 258" fill="none" stroke="#E0F2FE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="115" cy="258" r="3" fill="#E0F2FE"/>
+    <circle cx="135" cy="268" r="3" fill="#E0F2FE"/>
+    <circle cx="155" cy="258" r="3" fill="#E0F2FE"/>
+  </g>
+  
+  <!-- MS lettering in metallic light blue with glow -->
+  <g filter="url(#glow)">
+    <!-- M -->
+    <path d="M176 320 V216 L216 260 L256 216 V320"
+          fill="none"
+          stroke="url(#metalBlue)"
+          stroke-width="16"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+    
+    <!-- S -->
+    <path d="M296 228
+             C320 212, 352 212, 352 236
+             C352 256, 296 252, 296 276
+             C296 300, 336 304, 360 288"
+          fill="none"
+          stroke="url(#metalBlue)"
+          stroke-width="16"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Accent dots for visual interest -->
+  <circle cx="256" cy="360" r="4" fill="#60A5FA" opacity="0.6"/>
+  <circle cx="270" cy="360" r="4" fill="#A78BFA" opacity="0.6"/>
+  <circle cx="242" cy="360" r="4" fill="#7DD3FC" opacity="0.6"/>
+  
+  <!-- Subtle connecting line -->
+  <line x1="242" y1="360" x2="270" y2="360" stroke="url(#accentGradient)" stroke-width="1.5" opacity="0.4"/>
+</svg>
