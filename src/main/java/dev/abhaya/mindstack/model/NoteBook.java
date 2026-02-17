@@ -19,12 +19,4 @@ public class NoteBook {
 
     private String bookName;
 
-    @OneToMany(mappedBy = "noteBook",cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<Chapter> chapters;
-
-    public NoteBook(String bookName) {
-        this.bookName = bookName;
-    }
-
 }

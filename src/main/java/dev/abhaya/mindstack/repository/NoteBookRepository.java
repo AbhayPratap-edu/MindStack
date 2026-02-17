@@ -8,7 +8,5 @@ import java.util.List;
 
 @Repository
 public interface NoteBookRepository extends JpaRepository<NoteBook, Long> {
-    List<NoteBook> getNoteBooksById(Integer id);
 
-    NoteBook getNoteBookById(Long id);
 }

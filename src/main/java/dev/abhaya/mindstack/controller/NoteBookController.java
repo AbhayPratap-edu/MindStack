@@ -1,6 +1,7 @@
 package dev.abhaya.mindstack.controller;
 
-import dev.abhaya.mindstack.model.NoteBook;
+import dev.abhaya.mindstack.dto.notebook.NoteBookRequest;
+import dev.abhaya.mindstack.dto.notebook.NoteBookResponse;
 import dev.abhaya.mindstack.service.NoteBookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,32 +20,30 @@ public class NoteBookController {
     }
 
     @GetMapping
-    public List<NoteBook> getNoteBooks(){
+    public List<NoteBookResponse> getNoteBooks(){
         return noteBookService.getNoteBooks();
     }
 
     @GetMapping("/{Id}")
-    public ResponseEntity<NoteBook> getNoteBookById(@PathVariable Long Id){
-        return new ResponseEntity<>(noteBookService.getNoteBookById(Id), HttpStatus.OK);
+    public ResponseEntity<NoteBookResponse> getNoteBookById(@PathVariable Long Id){
+        return new ResponseEntity<>(noteBookService.getNoteBook(Id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<NoteBook> addNoteBook(@RequestBody NoteBook noteBook){
-        NoteBook savedNoteBook = noteBookService.addNoteBook(noteBook);
-        return new ResponseEntity<>(savedNoteBook, HttpStatus.CREATED);
+    public ResponseEntity<NoteBookResponse> createNoteBook(@RequestBody NoteBookRequest noteBookRequest){
+        return ResponseEntity.ok(noteBookService.createNoteBook(noteBookRequest));
     }
 
     @DeleteMapping("/{Id}")
     public ResponseEntity<String> deleteNoteBook(@PathVariable Long Id){
         noteBookService.deleteNoteBook(Id);
-        return ResponseEntity.ok().body("Note Book has been deleted id: " + Id);
+        return new ResponseEntity<>("Deleted",HttpStatus.OK);
     }
 
     @PutMapping("/{Id}")
-    public ResponseEntity<NoteBook> updateNoteBook(@PathVariable Long Id,
-                                                   @RequestBody NoteBook noteBook){
-        noteBook.setId(Id);
-        return new ResponseEntity<>(noteBookService.updateNoteBook(noteBook), HttpStatus.OK);
+    public ResponseEntity<NoteBookResponse> updateNoteBook(@PathVariable Long Id,
+                                                   @RequestBody NoteBookRequest noteBookRequest){
+        return new ResponseEntity<>(noteBookService.updateNoteBook(Id,noteBookRequest), HttpStatus.OK);
     }
 
 

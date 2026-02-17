@@ -1,5 +1,7 @@
 package dev.abhaya.mindstack.service;
 
+import dev.abhaya.mindstack.dto.notebook.NoteBookRequest;
+import dev.abhaya.mindstack.dto.notebook.NoteBookResponse;
 import dev.abhaya.mindstack.model.NoteBook;
 import dev.abhaya.mindstack.repository.NoteBookRepository;
 import lombok.Getter;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class NoteBookService {
+public class NoteBookService  {
 
 
 
@@ -21,27 +23,42 @@ public class NoteBookService {
         this.noteBookRepository = noteBookRepository;
     }
 
-
-    public NoteBook addNoteBook(NoteBook noteBook) {
-        noteBookRepository.save(noteBook);
-        return noteBook;
+    public NoteBookResponse createNoteBook(NoteBookRequest noteBookRequest) {
+        NoteBook noteBook = new NoteBook();
+        noteBook.setBookName(noteBookRequest.getBookName());
+        NoteBook savedNoteBook = noteBookRepository.save(noteBook);
+        return new NoteBookResponse(
+                savedNoteBook.getBookName()
+        );
     }
 
-    public List<NoteBook> getNoteBooks(){
-        return noteBookRepository.findAll();
+    public NoteBookResponse getNoteBook(Long id){
+        NoteBook noteBook = noteBookRepository.findById(id)
+                .orElseThrow( () -> new RuntimeException("Note Book Not Found") );
+
+        return new NoteBookResponse(
+                noteBook.getBookName()
+        );
     }
 
-    public NoteBook getNoteBookById(Long id) {
-        return noteBookRepository.getNoteBookById(id);
+    public List<NoteBookResponse> getNoteBooks(){
+        List<NoteBook> noteBooks = noteBookRepository.findAll();
+        List<NoteBookResponse> noteBookResponses = new ArrayList<>();
+        noteBooks.forEach(noteBook -> noteBookResponses
+                .add(new NoteBookResponse(noteBook.getBookName())));
+        return noteBookResponses;
     }
 
-    public void deleteNoteBook(Long id) {
+    public void deleteNoteBook(Long id) throws IllegalArgumentException{
         noteBookRepository.deleteById(id);
     }
 
-    public NoteBook updateNoteBook(NoteBook noteBook) {
+    public NoteBookResponse updateNoteBook(Long Id,NoteBookRequest noteBookRequest) {
+        NoteBook noteBook = noteBookRepository.findById(Id)
+                .orElseThrow( () -> new RuntimeException("Note Book Not Found") );
+        noteBook.setBookName(noteBookRequest.getBookName());
         noteBookRepository.save(noteBook);
-        return noteBook;
+        return new NoteBookResponse(noteBook.getBookName());
     }
 
 
