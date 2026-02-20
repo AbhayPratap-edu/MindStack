@@ -19,4 +19,10 @@ public class NoteBook {
 
     private String bookName;
 
+    @OneToMany(mappedBy = "noteBook",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<Chapter> chapters;
+
 }

@@ -5,6 +5,7 @@ import dev.abhaya.mindstack.dto.notebook.NoteBookResponse;
 import dev.abhaya.mindstack.model.NoteBook;
 import dev.abhaya.mindstack.repository.NoteBookRepository;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+//@RequiredArgsConstructor
 public class NoteBookService  {
 
-
-
     private final NoteBookRepository noteBookRepository;
-
 
     public NoteBookService(NoteBookRepository noteBookRepository) {
         this.noteBookRepository = noteBookRepository;
@@ -27,7 +26,7 @@ public class NoteBookService  {
         NoteBook noteBook = new NoteBook();
         noteBook.setBookName(noteBookRequest.getBookName());
         NoteBook savedNoteBook = noteBookRepository.save(noteBook);
-        return new NoteBookResponse(
+        return new NoteBookResponse(savedNoteBook.getId(),
                 savedNoteBook.getBookName()
         );
     }
@@ -36,7 +35,7 @@ public class NoteBookService  {
         NoteBook noteBook = noteBookRepository.findById(id)
                 .orElseThrow( () -> new RuntimeException("Note Book Not Found") );
 
-        return new NoteBookResponse(
+        return new NoteBookResponse(noteBook.getId(),
                 noteBook.getBookName()
         );
     }
@@ -45,7 +44,8 @@ public class NoteBookService  {
         List<NoteBook> noteBooks = noteBookRepository.findAll();
         List<NoteBookResponse> noteBookResponses = new ArrayList<>();
         noteBooks.forEach(noteBook -> noteBookResponses
-                .add(new NoteBookResponse(noteBook.getBookName())));
+                .add(new NoteBookResponse(noteBook.getId(),
+                        noteBook.getBookName())));
         return noteBookResponses;
     }
 
@@ -58,7 +58,7 @@ public class NoteBookService  {
                 .orElseThrow( () -> new RuntimeException("Note Book Not Found") );
         noteBook.setBookName(noteBookRequest.getBookName());
         noteBookRepository.save(noteBook);
-        return new NoteBookResponse(noteBook.getBookName());
+        return new NoteBookResponse(noteBook.getId(),noteBook.getBookName());
     }
 
 

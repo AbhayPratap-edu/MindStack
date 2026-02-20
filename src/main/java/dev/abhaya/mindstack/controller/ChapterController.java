@@ -1,34 +1,49 @@
-//package dev.abhaya.mindstack.controller;
-//
-//
-//import dev.abhaya.mindstack.model.Chapter;
-//import dev.abhaya.mindstack.repository.ChapterRepository;
-//import dev.abhaya.mindstack.service.ChapterService;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.List;
-//
-//@RestController
-//public class ChapterController {
-//
-//    private final ChapterService chapterService;
-//
-//    public ChapterController(ChapterService chapterService) {
-//        this.chapterService = chapterService;
-//    }
-//
-//    @GetMapping("/notebooks/{notebookId}/chapters")
-//    public List<Chapter> findChaptersByNoteBook_Id(Long noteBookId) {
-//        return chapterService.findChaptersByBook_Id(noteBookId);
-//    }
-//
-//    @PostMapping("/notebooks/{notebookId}/chapters")
-//    public ResponseEntity<Chapter> addChapter(@PathVariable Long notebookId,
-//                                              @RequestBody Chapter chapter) {
-//        Chapter savedChapter = chapterService.addChapter(notebookId,chapter);
-//        System.out.println(savedChapter);
-//        return new ResponseEntity<>(savedChapter, HttpStatus.CREATED);
-//    }
-//}
+package dev.abhaya.mindstack.controller;
+
+
+import dev.abhaya.mindstack.dto.chapter.*;
+import dev.abhaya.mindstack.service.ChapterService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+public class ChapterController {
+
+    private final ChapterService chapterService;
+
+    @GetMapping("/notebooks/{notebookId}/chapters")
+    public List<ChapterIndexResponse> findChaptersByNoteBookId(@PathVariable Long notebookId) {
+        return chapterService.findChaptersByBookId(notebookId);
+    }
+
+
+    @PostMapping("/notebooks/{notebookId}/chapters")
+    public ResponseEntity<ChapterIndexResponse> addChapter(@PathVariable Long notebookId,
+                                                           @RequestBody AddChapterRequest addChapterRequest){
+        return ResponseEntity.ok().body(chapterService.addChapter(notebookId, addChapterRequest));
+    }
+
+    @GetMapping("/chapters/{chapterId}")
+    public ResponseEntity<ChapterResponse> getChapter(@PathVariable Long chapterId){
+        return ResponseEntity.ok().body(chapterService.getChapter(chapterId));
+    }
+
+    @PatchMapping("/chapters/{chapterId}")
+    public ResponseEntity<UpdateContentResponse> updateContent(@PathVariable Long chapterId,
+                                                               @RequestBody UpdateContentRequest updateContentRequest){
+        return ResponseEntity.ok().body(chapterService.updateContent(chapterId,updateContentRequest));
+
+    }
+
+    @DeleteMapping ("/chapters/{chapterId}")
+    public ResponseEntity<Void> deleteChapter(@PathVariable Long chapterId){
+        chapterService.deleteChapter(chapterId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+}

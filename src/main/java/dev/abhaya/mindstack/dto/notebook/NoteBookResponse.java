@@ -9,5 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class NoteBookResponse {
+    Long noteBookId;
     private String bookName;
 }

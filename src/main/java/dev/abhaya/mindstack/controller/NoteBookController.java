@@ -46,5 +46,4 @@ public class NoteBookController {
         return new ResponseEntity<>(noteBookService.updateNoteBook(Id,noteBookRequest), HttpStatus.OK);
     }
 
-
 }

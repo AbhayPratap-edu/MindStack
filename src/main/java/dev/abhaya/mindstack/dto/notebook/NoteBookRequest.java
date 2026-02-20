@@ -7,5 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NoteBookRequest {
+
     private String bookName;
 }
