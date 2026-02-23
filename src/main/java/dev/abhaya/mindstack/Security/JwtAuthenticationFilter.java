@@ -1,0 +1,51 @@
+package dev.abhaya.mindstack.Security;
+
+import dev.abhaya.mindstack.model.StackUser;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+@Component
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JWTService jwtService;
+    private final StackUserDetailsService stackUserDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        final String requestTokenHeader = request.getHeader("Authorization");
+
+        if(requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")){
+            filterChain.doFilter(request,response);
+            return;
+        }
+
+        String token = requestTokenHeader.split("Bearer ")[1];
+        Long userId = jwtService.verifyTokenAndGetUserId(token);
+
+        if( userId != null &&  SecurityContextHolder.getContext().getAuthentication() == null){
+
+            StackUser stackUser = stackUserDetailsService.getStackUserById(userId);
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(stackUser,null,null);
+
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        }
+
+        filterChain.doFilter(request,response);
+
+    }
+}

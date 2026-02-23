@@ -25,4 +25,8 @@ public class NoteBook {
             fetch = FetchType.LAZY)
     private List<Chapter> chapters;
 
+    @ManyToOne
+    @JoinColumn(name = "stackuser_id")
+    private StackUser stackUser;
+
 }
