@@ -29,7 +29,7 @@ public class StackSecurityConfiguration {
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
                 .authorizeHttpRequests( auth -> auth
-                        .requestMatchers("/auth/signup","/auth/login","/auth/**").permitAll()//give any of you 'get' request endpoint
+                        .requestMatchers("/auth/signup","/auth/login","/auth/refresh").permitAll()//give any of you 'get' request endpoint
                         .anyRequest().authenticated())
 
                 .csrf(csrfConfig ->
@@ -46,7 +46,18 @@ public class StackSecurityConfiguration {
     }
 
 
-//    @Bean
+    // Password Encoding
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    //    @Bean
 //    UserDetailsService myInMemoryUserDetailsService(){
 //        UserDetails user = User  //for user role
 //                .withUsername("<UserName>")  // Replace <UserName> with the actual username
@@ -63,14 +74,5 @@ public class StackSecurityConfiguration {
 //        return new InMemoryUserDetailsManager(user,admin);
 //    }
 
-    // Password Encoding
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
 
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
 }

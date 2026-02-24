@@ -1,18 +1,22 @@
 package dev.abhaya.mindstack.controller;
 
+import dev.abhaya.mindstack.dto.stackuser.LoginApiResponse;
+import dev.abhaya.mindstack.dto.stackuser.LoginInternalResponse;
 import dev.abhaya.mindstack.dto.stackuser.LoginUserRequest;
-import dev.abhaya.mindstack.dto.stackuser.RegisterStackUserRequest;
-import dev.abhaya.mindstack.dto.stackuser.RegisterStackUserResponse;
 import dev.abhaya.mindstack.dto.stackuser.SignUpRequest;
 import dev.abhaya.mindstack.service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,17 +33,56 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginUserRequest loginUserRequest) {
-        String token = authService.logIn(loginUserRequest);
+    public ResponseEntity<LoginApiResponse> login(@RequestBody LoginUserRequest loginUserRequest,
+                                                       HttpServletResponse httpServletResponse) {
+        LoginInternalResponse loginResponse = authService.login(loginUserRequest);
 
-        //Add Arguments to loginMethod(HttpServletRequest request, HttpServletResponse response)
-        //Cookie cookie = new Cookie("token", token);
-        //cookie.setHttpOnly(true); // it makes sure that this cookie cannot be accessed by any other,
-                                    // it can only be fund with the help of your Http methods
-                                    // Prevents JavaScript access to the cookie
-        //response.addCookie(cookie); // Http only cookies can be passed from backend to frontend only
+        Cookie cookie = new Cookie("refresh_token", loginResponse.getRefreshToken());
+        cookie.setHttpOnly(true);//JavaScript cannot access this cookie. Only browser automatically sends it in requests
+        cookie.setSecure(true);//sent over only HTTPS. not over HTTP
+        cookie.setPath("/auth/refresh");//Browser Send this cookie only when request path starts with /auth/refresh.
+        cookie.setMaxAge(7 * 24 * 60 * 60);//Cookie persists for 7 days,should match refresh token validation time
+        cookie.setAttribute("SameSite", "Strict");//Cookie is sent ONLY when request originates from same site.
+        httpServletResponse.addCookie(cookie);//attaches it to HTTP response header
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new LoginApiResponse
+                        (loginResponse.getUserID(),
+                        loginResponse.getAccessToken())
+        );
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginApiResponse> refreshToken(HttpServletRequest httpServletRequest,
+                                                              HttpServletResponse httpServletResponse) {
+        Cookie[] cookies = httpServletRequest.getCookies();
+        if(cookies == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String refreshToken = Arrays.stream(cookies)
+                .filter(cookie -> "refresh_token".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+
+        if(refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        LoginInternalResponse loginResponse = authService.rotateRefreshToken(refreshToken);
+        Cookie cookie = new Cookie("refresh_token", loginResponse.getRefreshToken());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/auth/refresh");
+        cookie.setMaxAge(7 * 24 * 60 * 60);
+        cookie.setAttribute("SameSite", "Strict");
+
+        httpServletResponse.addCookie(cookie);
+
+        return ResponseEntity.ok(new LoginApiResponse(
+                        loginResponse.getUserID(),
+                        loginResponse.getAccessToken())
+        );
     }
 
 }

@@ -7,9 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class RegisterStackUserResponse {
+public class LoginInternalResponse {
 
     private long userID;
-    private String email;
+
+    private String accessToken;
+    private String refreshToken;
+
 
 }

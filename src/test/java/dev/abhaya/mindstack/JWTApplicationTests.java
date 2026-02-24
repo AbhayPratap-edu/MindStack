@@ -19,7 +19,7 @@ class JWTApplicationTests {
 
     void contextLoads() {
         //StackUser user = new StackUser(<user id>,<user email>,<user password>);
-       // String token = jwtService.createToken(user);
+       // String token = jwtService.createAccessToken(user);
         //System.out.println("Create Token: "+token);
         //Long id = jwtService.verifyTokenAndGetUserId(token);   //to varify the token you can directly use that token here
         //System.out.println("Generate Id from Token: "+id);

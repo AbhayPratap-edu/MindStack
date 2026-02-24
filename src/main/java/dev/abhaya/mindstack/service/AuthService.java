@@ -1,10 +1,12 @@
 package dev.abhaya.mindstack.service;
 
 import dev.abhaya.mindstack.Security.JWTService;
+import dev.abhaya.mindstack.dto.stackuser.LoginInternalResponse;
 import dev.abhaya.mindstack.dto.stackuser.LoginUserRequest;
 import dev.abhaya.mindstack.dto.stackuser.SignUpRequest;
 import dev.abhaya.mindstack.exception.customException.CustomMessageException;
 import dev.abhaya.mindstack.exception.customException.UserAlreadyExistsException;
+import dev.abhaya.mindstack.model.RefreshToken;
 import dev.abhaya.mindstack.model.StackUser;
 import dev.abhaya.mindstack.repository.StackUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
 
     public void signUp(SignUpRequest signUpRequest) {
 
@@ -40,34 +43,29 @@ public class AuthService {
 
     }
 
-    public String logIn(LoginUserRequest loginUserRequest) {
+    //UsernamePasswordAuthenticationToken holds email and password and
+    // acts as an unauthenticated authentication request. It does not authenticate by itself.
+
+    //authenticate(...) receives the unauthenticated Authentication object,
+    // delegates to AuthenticationProvider implementations through ProviderManager,
+    // and returns a new authenticated Authentication object if credentials are valid.
+
+
+    //Before authenticate():
+    //principal = email
+    //credentials = raw password
+    //authenticated = false
+
+    //After successful authentication:
+    //principal = UserDetails
+    //credentials = null
+    //authenticated = true
+    public LoginInternalResponse login(LoginUserRequest loginUserRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginUserRequest.getEmail(),
                         loginUserRequest.getPassword()));
-
-        //UsernamePasswordAuthenticationToken holds email and password and
-        // acts as an unauthenticated authentication request. It does not authenticate by itself.
-
-        //authenticate(...) receives the unauthenticated Authentication object,
-        // delegates to AuthenticationProvider implementations through ProviderManager,
-        // and returns a new authenticated Authentication object if credentials are valid.
-
-
-        //Before authenticate():
-        //principal = email
-        //credentials = raw password
-        //authenticated = false
-
-        //After successful authentication:
-        //principal = UserDetails
-        //credentials = null
-        //authenticated = true
-
-//        System.out.println(authentication);
-//        System.out.println(authentication.getPrincipal());
-
 
         User userDetails = (User) authentication.getPrincipal();
         String email = userDetails.getUsername();
@@ -75,6 +73,29 @@ public class AuthService {
         StackUser stackUser = stackUserRepository.findByEmail(email)
                 .orElseThrow( () -> new CustomMessageException("User Not Found"));
 
-        return jwtService.createToken(stackUser);
+        String accessToken = jwtService.createAccessToken(stackUser);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(stackUser);
+
+        return new LoginInternalResponse(
+                stackUser.getUserID(),
+                accessToken,
+                refreshToken.getToken());
+
+    }
+
+    public LoginInternalResponse rotateRefreshToken(String oldRefreshToken) {
+        RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(oldRefreshToken);
+        StackUser stackUser = refreshToken.getStackUser();
+
+        //Rotation
+        refreshTokenService.revokeRefreshToken(oldRefreshToken);
+        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(stackUser);
+        String  newAccessToken = jwtService.createAccessToken(stackUser);
+
+        return new LoginInternalResponse(
+                stackUser.getUserID(),
+                newAccessToken,
+                newRefreshToken.getToken()
+        );
     }
 }
