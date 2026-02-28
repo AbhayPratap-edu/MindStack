@@ -1,9 +1,6 @@
 package dev.abhaya.mindstack.controller;
 
-import dev.abhaya.mindstack.dto.stackuser.LoginApiResponse;
-import dev.abhaya.mindstack.dto.stackuser.LoginInternalResponse;
-import dev.abhaya.mindstack.dto.stackuser.LoginUserRequest;
-import dev.abhaya.mindstack.dto.stackuser.SignUpRequest;
+import dev.abhaya.mindstack.dto.auth.*;
 import dev.abhaya.mindstack.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +32,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginApiResponse> login(@RequestBody LoginUserRequest loginUserRequest,
                                                        HttpServletResponse httpServletResponse) {
-        LoginInternalResponse loginResponse = authService.login(loginUserRequest);
+        AuthResponse loginResponse = authService.login(loginUserRequest);
 
         Cookie cookie = new Cookie("refresh_token", loginResponse.getRefreshToken());
         cookie.setHttpOnly(true);//JavaScript cannot access this cookie. Only browser automatically sends it in requests
@@ -46,7 +43,7 @@ public class AuthController {
         httpServletResponse.addCookie(cookie);//attaches it to HTTP response header
 
         return ResponseEntity.ok(new LoginApiResponse
-                        (loginResponse.getUserID(),
+                        (loginResponse.getUserId(),
                         loginResponse.getAccessToken())
         );
     }
@@ -69,7 +66,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        LoginInternalResponse loginResponse = authService.rotateRefreshToken(refreshToken);
+        AuthResponse loginResponse = authService.rotateRefreshToken(refreshToken);
         Cookie cookie = new Cookie("refresh_token", loginResponse.getRefreshToken());
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
@@ -80,7 +77,7 @@ public class AuthController {
         httpServletResponse.addCookie(cookie);
 
         return ResponseEntity.ok(new LoginApiResponse(
-                        loginResponse.getUserID(),
+                        loginResponse.getUserId(),
                         loginResponse.getAccessToken())
         );
     }

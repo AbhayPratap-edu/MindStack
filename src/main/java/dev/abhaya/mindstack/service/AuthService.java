@@ -1,11 +1,10 @@
 package dev.abhaya.mindstack.service;
 
-import dev.abhaya.mindstack.Security.JWTService;
-import dev.abhaya.mindstack.dto.stackuser.LoginInternalResponse;
-import dev.abhaya.mindstack.dto.stackuser.LoginUserRequest;
-import dev.abhaya.mindstack.dto.stackuser.SignUpRequest;
-import dev.abhaya.mindstack.exception.customException.CustomMessageException;
+import dev.abhaya.mindstack.dto.auth.AuthResponse;
+import dev.abhaya.mindstack.dto.auth.LoginUserRequest;
+import dev.abhaya.mindstack.dto.auth.SignUpRequest;
 import dev.abhaya.mindstack.exception.customException.UserAlreadyExistsException;
+import dev.abhaya.mindstack.model.AuthProvider;
 import dev.abhaya.mindstack.model.RefreshToken;
 import dev.abhaya.mindstack.model.StackUser;
 import dev.abhaya.mindstack.repository.StackUserRepository;
@@ -17,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,21 +23,24 @@ public class AuthService {
 
     private final StackUserRepository stackUserRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
+    private final UserIdentityResolver userIdentityResolver;
+    private final TokenService tokenService;
 
     public void signUp(SignUpRequest signUpRequest) {
 
-        Optional<StackUser> stackUser = stackUserRepository.findByEmail(signUpRequest.getEmail());
-        if(stackUser.isPresent())
+        if(stackUserRepository.findByEmail(signUpRequest.getEmail()).isPresent())
             throw new UserAlreadyExistsException("Cannot signup, user already exits with "+signUpRequest.getEmail());
 
-        StackUser newStackUser = new StackUser();
-        newStackUser.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
-        newStackUser.setEmail(signUpRequest.getEmail());
+        StackUser newStackUser = StackUser.builder()
+                .email(signUpRequest.getEmail())
+                .password(passwordEncoder.encode(signUpRequest.getPassword()))
+                .authProvider(AuthProvider.LOCAL)
+                .build();
 
-        StackUser savedStackUser = stackUserRepository.save(newStackUser);
+
+        stackUserRepository.save(newStackUser);
 
     }
 
@@ -60,42 +61,31 @@ public class AuthService {
     //principal = UserDetails
     //credentials = null
     //authenticated = true
-    public LoginInternalResponse login(LoginUserRequest loginUserRequest) {
+    public AuthResponse login(LoginUserRequest loginUserRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginUserRequest.getEmail(),
-                        loginUserRequest.getPassword()));
+                        loginUserRequest.getPassword())
+        );
 
         User userDetails = (User) authentication.getPrincipal();
+
+        StackUser stackUser = userIdentityResolver.resolveFromLocal(userDetails);
         String email = userDetails.getUsername();
 
-        StackUser stackUser = stackUserRepository.findByEmail(email)
-                .orElseThrow( () -> new CustomMessageException("User Not Found"));
-
-        String accessToken = jwtService.createAccessToken(stackUser);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(stackUser);
-
-        return new LoginInternalResponse(
-                stackUser.getUserID(),
-                accessToken,
-                refreshToken.getToken());
+        return tokenService.issueTokens(stackUser);
 
     }
 
-    public LoginInternalResponse rotateRefreshToken(String oldRefreshToken) {
+    public AuthResponse rotateRefreshToken(String oldRefreshToken) {
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(oldRefreshToken);
         StackUser stackUser = refreshToken.getStackUser();
 
         //Rotation
         refreshTokenService.revokeRefreshToken(oldRefreshToken);
-        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(stackUser);
-        String  newAccessToken = jwtService.createAccessToken(stackUser);
 
-        return new LoginInternalResponse(
-                stackUser.getUserID(),
-                newAccessToken,
-                newRefreshToken.getToken()
-        );
+        return tokenService.issueTokens(stackUser);
+
     }
 }

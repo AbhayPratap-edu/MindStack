@@ -1,4 +1,4 @@
-package dev.abhaya.mindstack.dto.stackuser;
+package dev.abhaya.mindstack.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,12 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class LoginInternalResponse {
+public class LoginApiResponse {
 
     private long userID;
-
     private String accessToken;
-    private String refreshToken;
-
-
 }

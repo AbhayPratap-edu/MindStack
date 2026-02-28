@@ -1,6 +1,9 @@
 package dev.abhaya.mindstack.config;
 
 import dev.abhaya.mindstack.Security.JwtAuthenticationFilter;
+import dev.abhaya.mindstack.Security.oauth2.OAuth2LoginSuccessHandler;
+import dev.abhaya.mindstack.Security.oauth2.StackOAuth2UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,21 +29,48 @@ public class StackSecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
+                                            StackOAuth2UserService stackOAuth2UserService,
+                                            OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) throws Exception{
         httpSecurity
                 .authorizeHttpRequests( auth -> auth
-                        .requestMatchers("/auth/signup","/auth/login","/auth/refresh").permitAll()//give any of you 'get' request endpoint
+                        .requestMatchers(
+                                "/auth/signup",
+                                "/auth/login",
+                                "/auth/refresh",
+                                "/login/oauth2/**",
+                                "/oauth2/**")
+                        .permitAll()
                         .anyRequest().authenticated())
+
+                .exceptionHandling(ex ->
+                        ex
+                                .authenticationEntryPoint(
+                                        (request, response, authException)
+                                                -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                                )
+                )
 
                 .csrf(csrfConfig ->
                         csrfConfig.disable())//disabled for simplicity not for production
 
-                .sessionManagement( sessionConfig ->// Disable JSESSIONID for simplicity,not for production
+                .sessionManagement( sessionConfig ->
                         sessionConfig
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
 
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
+                .oauth2Login( oauth2LoginConfig ->
+                        oauth2LoginConfig
+                                .userInfoEndpoint( userInfoEndpointConfig ->
+                                        userInfoEndpointConfig.userService(stackOAuth2UserService))
+                                .successHandler(oAuth2LoginSuccessHandler)
+                                .failureHandler((request, response, exception) ->
+                                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, exception.getMessage())
+                                )
+                )
+        ;
 
         return httpSecurity.build(); //when you add build this throws an exception
     }

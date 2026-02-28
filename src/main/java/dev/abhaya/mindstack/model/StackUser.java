@@ -3,7 +3,6 @@ package dev.abhaya.mindstack.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -12,6 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class StackUser {
 
     @Id
@@ -21,8 +21,14 @@ public class StackUser {
     @Column(unique = true,nullable = false, length = 255)
     private String email;
 
-    @Column(nullable = false)
+    @Column()
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AuthProvider authProvider;
+
+    private String providerId;
 
     @OneToMany(mappedBy = "stackUser",
             cascade = CascadeType.REMOVE,

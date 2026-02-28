@@ -1,4 +1,4 @@
-package dev.abhaya.mindstack.dto.stackuser;
+package dev.abhaya.mindstack.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
