@@ -88,4 +88,11 @@ public class AuthService {
         return tokenService.issueTokens(stackUser);
 
     }
+
+    public void logout(String refreshToken) {
+
+        if(refreshToken != null) {
+            refreshTokenService.revokeRefreshToken(refreshToken);
+        }
+    }
 }

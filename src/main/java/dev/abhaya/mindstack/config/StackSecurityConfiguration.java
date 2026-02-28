@@ -87,22 +87,5 @@ public class StackSecurityConfiguration {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    //    @Bean
-//    UserDetailsService myInMemoryUserDetailsService(){
-//        UserDetails user = User  //for user role
-//                .withUsername("<UserName>")  // Replace <UserName> with the actual username
-//                .password(passwordEncoder().encode("<UserPassword>"))   // Replace <UserPassword> with the actual password
-//                .roles("USER")
-//                .build();
-//
-//        UserDetails admin = User      //for admin role
-//                .withUsername("<AdminName>") // Replace <AdminName> with the actual username
-//                .password(passwordEncoder().encode("<AdminPassword>"))  // Replace <AdminPassword> with the actual password
-//                .roles("ADMIN")
-//                .build();
-//
-//        return new InMemoryUserDetailsManager(user,admin);
-//    }
-
 
 }

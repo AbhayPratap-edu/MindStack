@@ -2,16 +2,14 @@ package dev.abhaya.mindstack.controller;
 
 import dev.abhaya.mindstack.dto.auth.*;
 import dev.abhaya.mindstack.service.AuthService;
+import dev.abhaya.mindstack.service.RefreshTokenCookieService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 
@@ -22,6 +20,7 @@ public class AuthController {
 
 
     private final AuthService authService;
+    private final RefreshTokenCookieService refreshTokenCookieService;
 
     @PostMapping("/signup")
     public ResponseEntity<Void> signUp(@RequestBody SignUpRequest signUpRequest){
@@ -32,15 +31,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginApiResponse> login(@RequestBody LoginUserRequest loginUserRequest,
                                                        HttpServletResponse httpServletResponse) {
-        AuthResponse loginResponse = authService.login(loginUserRequest);
 
-        Cookie cookie = new Cookie("refresh_token", loginResponse.getRefreshToken());
-        cookie.setHttpOnly(true);//JavaScript cannot access this cookie. Only browser automatically sends it in requests
-        cookie.setSecure(true);//sent over only HTTPS. not over HTTP
-        cookie.setPath("/auth/refresh");//Browser Send this cookie only when request path starts with /auth/refresh.
-        cookie.setMaxAge(7 * 24 * 60 * 60);//Cookie persists for 7 days,should match refresh token validation time
-        cookie.setAttribute("SameSite", "Strict");//Cookie is sent ONLY when request originates from same site.
-        httpServletResponse.addCookie(cookie);//attaches it to HTTP response header
+        AuthResponse loginResponse = authService.login(loginUserRequest);
+        refreshTokenCookieService.addRefreshTokenCookie(httpServletResponse,loginResponse.getRefreshToken());
 
         return ResponseEntity.ok(new LoginApiResponse
                         (loginResponse.getUserId(),
@@ -49,37 +42,36 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginApiResponse> refreshToken(HttpServletRequest httpServletRequest,
-                                                              HttpServletResponse httpServletResponse) {
-        Cookie[] cookies = httpServletRequest.getCookies();
-        if(cookies == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    public ResponseEntity<LoginApiResponse> refreshToken(
+            @CookieValue(name = "refresh_token", required = false) String refreshToken,
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse) {
 
-        String refreshToken = Arrays.stream(cookies)
-                .filter(cookie -> "refresh_token".equals(cookie.getName()))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
 
         if(refreshToken == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         AuthResponse loginResponse = authService.rotateRefreshToken(refreshToken);
-        Cookie cookie = new Cookie("refresh_token", loginResponse.getRefreshToken());
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/auth/refresh");
-        cookie.setMaxAge(7 * 24 * 60 * 60);
-        cookie.setAttribute("SameSite", "Strict");
-
-        httpServletResponse.addCookie(cookie);
+        refreshTokenCookieService.addRefreshTokenCookie(httpServletResponse,loginResponse.getRefreshToken());
 
         return ResponseEntity.ok(new LoginApiResponse(
                         loginResponse.getUserId(),
                         loginResponse.getAccessToken())
         );
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = "refresh_token", required = false) String refreshToken,
+            HttpServletResponse httpServletResponse) {
+
+        authService.logout(refreshToken);
+        refreshTokenCookieService.clearRefreshTokenCookie(httpServletResponse);
+
+        return ResponseEntity.ok().build();
+
+    }
+
 
 }
