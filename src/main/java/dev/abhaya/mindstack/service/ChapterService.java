@@ -7,6 +7,7 @@ import dev.abhaya.mindstack.repository.ChapterRepository;
 import dev.abhaya.mindstack.repository.NoteBookRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ChapterService {
     }
 
 
+    @PreAuthorize("hasAuthority('NOTEBOOK_VIEW') and @noteBookSecurity.isOwner(#noteBookId, authentication)")
     public List<ChapterIndexResponse> findChaptersByBookId(Long noteBookId) {
         List<Chapter> chapters = chapterRepository.findAllByNoteBook_Id(noteBookId);
         return chapters.stream()
@@ -36,7 +38,7 @@ public class ChapterService {
                 .toList();
     }
 
-
+    @PreAuthorize("hasAuthority('CHAPTERS_CREATE') and @noteBookSecurity.isOwner(#notebookId, authentication)")
     public ChapterIndexResponse addChapter(Long notebookId, AddChapterRequest addChapterRequest) {
 
         Chapter newChapter = new Chapter();
@@ -58,6 +60,7 @@ public class ChapterService {
 
     }
 
+    @PreAuthorize("hasAuthority('CHAPTERS_VIEW') and @chapterSecurity.isOwner(#chapterId, authentication)")
     public ChapterResponse getChapter(Long chapterId) {
         Chapter chapter = chapterRepository.findById(chapterId).
                 orElseThrow( () -> new EntityNotFoundException("Chapter Not Found") );
@@ -67,6 +70,7 @@ public class ChapterService {
         );
     }
 
+    @PreAuthorize("hasAuthority('CHAPTERS_UPDATE') and @chapterSecurity.isOwner(#chapterId, authentication)")
     public UpdateContentResponse updateContent(Long chapterId, UpdateContentRequest updateContentRequest) {
 
         Chapter chapter = chapterRepository.findById(chapterId).
@@ -77,6 +81,7 @@ public class ChapterService {
     }
 
 
+    @PreAuthorize("hasAuthority('CHAPTERS_DELETE') and @chapterSecurity.isOwner(#chapterId, authentication)")
     public void deleteChapter(Long chapterId) {
         chapterRepository.deleteById(chapterId);
     }

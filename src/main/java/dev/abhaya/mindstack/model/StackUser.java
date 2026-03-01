@@ -16,7 +16,7 @@ public class StackUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long UserID;
+    private Long userId;
 
     @Column(unique = true,nullable = false, length = 255)
     private String email;

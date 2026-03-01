@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @RequiredArgsConstructor
 public class StackSecurityConfiguration {
 
@@ -42,44 +44,6 @@ public class StackSecurityConfiguration {
                                 "/login/oauth2/**",
                                 "/oauth2/**")
                         .permitAll()
-
-                        // Chapter nested endpoints FIRST
-                        .requestMatchers(HttpMethod.GET, "/notebooks/*/chapters")
-                        .hasAuthority("CHAPTER_VIEW")
-
-                        .requestMatchers(HttpMethod.POST, "/notebooks/*/chapters")
-                        .hasAuthority("CHAPTER_CREATE")
-
-                        .requestMatchers(HttpMethod.GET, "/chapters/**")
-                        .hasAuthority("CHAPTER_VIEW")
-
-                        .requestMatchers(HttpMethod.PATCH, "/chapters/**")
-                        .hasAuthority("CHAPTER_UPDATE")
-
-                        .requestMatchers(HttpMethod.DELETE, "/chapters/**")
-                        .hasAuthority("CHAPTER_DELETE")
-
-                        // Notebook endpoints
-                        .requestMatchers(HttpMethod.GET, "/notebooks/**")
-                        .hasAuthority("NOTEBOOK_VIEW")
-
-                        .requestMatchers(HttpMethod.POST, "/notebooks/**")
-                        .hasAuthority("NOTEBOOK_CREATE")
-
-                        .requestMatchers(HttpMethod.PUT, "/notebooks/**")
-                        .hasAuthority("NOTEBOOK_UPDATE")
-
-                        .requestMatchers(HttpMethod.DELETE, "/notebooks/**")
-                        .hasAuthority("NOTEBOOK_DELETE")
-
-
-                        // /notebooks/** → matches /notebooks and /notebooks/{id}
-                        // /notebooks/*/chapters → matches /notebooks/1/chapters,
-                        // /chapters/** → matches /chapters/{id}
-
-                        //Admin
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-
                         .anyRequest().authenticated())
 
                 .exceptionHandling(ex ->
@@ -95,7 +59,7 @@ public class StackSecurityConfiguration {
 
                 .sessionManagement( sessionConfig ->
                         sessionConfig
-                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

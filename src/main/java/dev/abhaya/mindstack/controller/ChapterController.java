@@ -5,6 +5,7 @@ import dev.abhaya.mindstack.dto.chapter.*;
 import dev.abhaya.mindstack.service.ChapterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,6 +45,5 @@ public class ChapterController {
         chapterService.deleteChapter(chapterId);
         return ResponseEntity.noContent().build();
     }
-
 
 }

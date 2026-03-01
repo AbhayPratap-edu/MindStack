@@ -5,6 +5,8 @@ import dev.abhaya.mindstack.dto.notebook.NoteBookResponse;
 import dev.abhaya.mindstack.service.NoteBookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +22,8 @@ public class NoteBookController {
     }
 
     @GetMapping
-    public List<NoteBookResponse> getNoteBooks(){
-        return noteBookService.getNoteBooks();
+    public List<NoteBookResponse> getNoteBooks(Authentication authentication) {
+        return noteBookService.getNoteBooks(authentication);
     }
 
     @GetMapping("/{Id}")
@@ -30,8 +32,9 @@ public class NoteBookController {
     }
 
     @PostMapping
-    public ResponseEntity<NoteBookResponse> createNoteBook(@RequestBody NoteBookRequest noteBookRequest){
-        return ResponseEntity.ok(noteBookService.createNoteBook(noteBookRequest));
+    public ResponseEntity<NoteBookResponse> createNoteBook(@RequestBody NoteBookRequest noteBookRequest,
+                                                           Authentication authentication){
+        return ResponseEntity.ok(noteBookService.createNoteBook(noteBookRequest,authentication));
     }
 
     @DeleteMapping("/{Id}")
