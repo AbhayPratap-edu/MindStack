@@ -1,6 +1,6 @@
-package dev.abhaya.mindstack.service;
+package dev.abhaya.mindstack.service.auth;
 
-import dev.abhaya.mindstack.Security.JWTService;
+import dev.abhaya.mindstack.Security.jwt.JWTService;
 import dev.abhaya.mindstack.dto.auth.AuthResponse;
 import dev.abhaya.mindstack.model.RefreshToken;
 import dev.abhaya.mindstack.model.StackUser;

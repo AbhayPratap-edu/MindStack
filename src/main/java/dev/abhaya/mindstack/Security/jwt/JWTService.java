@@ -1,18 +1,19 @@
-package dev.abhaya.mindstack.Security;
+package dev.abhaya.mindstack.Security.jwt;
 
+import dev.abhaya.mindstack.Security.authorities.Permission;
+import dev.abhaya.mindstack.Security.authorities.RolePermissionMapping;
 import dev.abhaya.mindstack.model.StackUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -30,10 +31,16 @@ public class JWTService {
 
 
     public String createAccessToken(StackUser stackUser){
+
+        Set<Permission> permissions = RolePermissionMapping.getPermissions(stackUser.getRole());
+
+        List<String>  permissionNames = permissions.stream().map(Enum::name).toList();
+
         return Jwts.builder()
                 .subject(stackUser.getUserID().toString())
                 .claim("email",stackUser.getEmail())
-                .claim("roles", Set.of("ADMIN","USER"))
+                .claim("role",stackUser.getRole().name())
+                .claim("permissions",permissionNames)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+ACCESS_TOKEN_VALIDITY)) // Valid for 1 Minute
                 .signWith(getSigningKey())
@@ -55,16 +62,16 @@ public class JWTService {
 
 
 //to verify token, use this method, will give the id that we are using to create this token
-    public long verifyTokenAndGetUserId(String token){
-        Claims claims = Jwts.parser()// to parse it ( Creates a JwtParserBuilder )
-                .verifyWith(getSigningKey())// verify the key that we have
-                .build()// build the parser
-                .parseSignedClaims(token)//parse the token and get jws<claims>
-                .getPayload();
+    public Claims verifyTokenAndGeClaims(String token){
 
         //Receive JWT → Parser → Attach Key → Build → Parse → Verify Signature → Check Exp → Extract Claims
         //  Read Subject → Convert to long → userId
 
-        return Long.parseLong(claims.getSubject());
+        return Jwts.parser()// to parse it ( Creates a JwtParserBuilder )
+                .verifyWith(getSigningKey())// verify the key that we have
+                .build()// build the parser
+                .parseSignedClaims(token)//parse the token and get jws<claims>
+                .getPayload();
     }
+
 }

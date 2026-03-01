@@ -1,17 +1,13 @@
 package dev.abhaya.mindstack.controller;
 
 import dev.abhaya.mindstack.dto.auth.*;
-import dev.abhaya.mindstack.service.AuthService;
-import dev.abhaya.mindstack.service.RefreshTokenCookieService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import dev.abhaya.mindstack.service.auth.AuthService;
+import dev.abhaya.mindstack.service.auth.RefreshTokenCookieService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,6 +20,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<Void> signUp(@RequestBody SignUpRequest signUpRequest){
+
         authService.signUp(signUpRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -44,7 +41,6 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<LoginApiResponse> refreshToken(
             @CookieValue(name = "refresh_token", required = false) String refreshToken,
-            HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse) {
 
 
@@ -72,6 +68,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
 
     }
+
 
 
 }

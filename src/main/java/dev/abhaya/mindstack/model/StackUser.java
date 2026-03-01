@@ -30,6 +30,10 @@ public class StackUser {
 
     private String providerId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     @OneToMany(mappedBy = "stackUser",
             cascade = CascadeType.REMOVE,
             orphanRemoval = true,

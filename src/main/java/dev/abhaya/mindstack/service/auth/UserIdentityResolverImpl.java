@@ -1,6 +1,7 @@
-package dev.abhaya.mindstack.service;
+package dev.abhaya.mindstack.service.auth;
 
 import dev.abhaya.mindstack.model.AuthProvider;
+import dev.abhaya.mindstack.model.Role;
 import dev.abhaya.mindstack.model.StackUser;
 import dev.abhaya.mindstack.repository.StackUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,7 @@ public class UserIdentityResolverImpl implements UserIdentityResolver {
         newStackUser.setPassword(null);
         newStackUser.setAuthProvider(AuthProvider.GOOGLE);
         newStackUser.setProviderId(provideId);
+        newStackUser.setRole(Role.USER);
         return stackUserRepository.save(newStackUser);
     }
 }

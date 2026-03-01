@@ -1,4 +1,4 @@
-package dev.abhaya.mindstack.service;
+package dev.abhaya.mindstack.service.auth;
 
 import dev.abhaya.mindstack.model.StackUser;
 import org.springframework.security.core.userdetails.UserDetails;

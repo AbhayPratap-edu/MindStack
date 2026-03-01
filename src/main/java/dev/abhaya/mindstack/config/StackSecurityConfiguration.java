@@ -1,23 +1,20 @@
 package dev.abhaya.mindstack.config;
 
-import dev.abhaya.mindstack.Security.JwtAuthenticationFilter;
+import dev.abhaya.mindstack.Security.jwt.JwtAuthenticationFilter;
 import dev.abhaya.mindstack.Security.oauth2.OAuth2LoginSuccessHandler;
 import dev.abhaya.mindstack.Security.oauth2.StackOAuth2UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -34,6 +31,10 @@ public class StackSecurityConfiguration {
                                             OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) throws Exception{
         httpSecurity
                 .authorizeHttpRequests( auth -> auth
+
+                        //Spring stops at the first matching rule
+
+                        //public
                         .requestMatchers(
                                 "/auth/signup",
                                 "/auth/login",
@@ -41,6 +42,44 @@ public class StackSecurityConfiguration {
                                 "/login/oauth2/**",
                                 "/oauth2/**")
                         .permitAll()
+
+                        // Chapter nested endpoints FIRST
+                        .requestMatchers(HttpMethod.GET, "/notebooks/*/chapters")
+                        .hasAuthority("CHAPTER_VIEW")
+
+                        .requestMatchers(HttpMethod.POST, "/notebooks/*/chapters")
+                        .hasAuthority("CHAPTER_CREATE")
+
+                        .requestMatchers(HttpMethod.GET, "/chapters/**")
+                        .hasAuthority("CHAPTER_VIEW")
+
+                        .requestMatchers(HttpMethod.PATCH, "/chapters/**")
+                        .hasAuthority("CHAPTER_UPDATE")
+
+                        .requestMatchers(HttpMethod.DELETE, "/chapters/**")
+                        .hasAuthority("CHAPTER_DELETE")
+
+                        // Notebook endpoints
+                        .requestMatchers(HttpMethod.GET, "/notebooks/**")
+                        .hasAuthority("NOTEBOOK_VIEW")
+
+                        .requestMatchers(HttpMethod.POST, "/notebooks/**")
+                        .hasAuthority("NOTEBOOK_CREATE")
+
+                        .requestMatchers(HttpMethod.PUT, "/notebooks/**")
+                        .hasAuthority("NOTEBOOK_UPDATE")
+
+                        .requestMatchers(HttpMethod.DELETE, "/notebooks/**")
+                        .hasAuthority("NOTEBOOK_DELETE")
+
+
+                        // /notebooks/** → matches /notebooks and /notebooks/{id}
+                        // /notebooks/*/chapters → matches /notebooks/1/chapters,
+                        // /chapters/** → matches /chapters/{id}
+
+                        //Admin
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated())
 
                 .exceptionHandling(ex ->

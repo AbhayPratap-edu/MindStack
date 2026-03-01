@@ -2,8 +2,8 @@ package dev.abhaya.mindstack.Security.oauth2;
 
 import dev.abhaya.mindstack.dto.auth.AuthResponse;
 import dev.abhaya.mindstack.model.StackUser;
-import dev.abhaya.mindstack.service.TokenService;
-import dev.abhaya.mindstack.service.UserIdentityResolverImpl;
+import dev.abhaya.mindstack.service.auth.TokenService;
+import dev.abhaya.mindstack.service.auth.UserIdentityResolverImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         StackUser stackUser = userIdentityResolver.resolveFromOAuth(oAuth2User);
 
         AuthResponse authResponse = tokenService.issueTokens(stackUser);
-        Cookie refreshTokenCookie = new Cookie("refresh_token", authResponse.getRefreshToken().toString());
+        Cookie refreshTokenCookie = new Cookie("refresh_token", authResponse.getRefreshToken());
 
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/auth/refresh");

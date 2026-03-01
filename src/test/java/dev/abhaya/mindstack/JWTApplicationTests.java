@@ -1,14 +1,9 @@
 package dev.abhaya.mindstack;
 
-import dev.abhaya.mindstack.Security.JWTService;
-import dev.abhaya.mindstack.model.StackUser;
+import dev.abhaya.mindstack.Security.jwt.JWTService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.Stack;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @SpringBootTest
 class JWTApplicationTests {

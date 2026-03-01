@@ -1,4 +1,4 @@
-package dev.abhaya.mindstack.service;
+package dev.abhaya.mindstack.service.auth;
 
 import dev.abhaya.mindstack.dto.auth.AuthResponse;
 import dev.abhaya.mindstack.dto.auth.LoginUserRequest;
@@ -6,6 +6,7 @@ import dev.abhaya.mindstack.dto.auth.SignUpRequest;
 import dev.abhaya.mindstack.exception.customException.UserAlreadyExistsException;
 import dev.abhaya.mindstack.model.AuthProvider;
 import dev.abhaya.mindstack.model.RefreshToken;
+import dev.abhaya.mindstack.model.Role;
 import dev.abhaya.mindstack.model.StackUser;
 import dev.abhaya.mindstack.repository.StackUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class AuthService {
                 .email(signUpRequest.getEmail())
                 .password(passwordEncoder.encode(signUpRequest.getPassword()))
                 .authProvider(AuthProvider.LOCAL)
+                .role(Role.USER)
                 .build();
 
 

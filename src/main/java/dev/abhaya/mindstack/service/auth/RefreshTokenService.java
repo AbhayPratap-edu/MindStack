@@ -1,16 +1,12 @@
-package dev.abhaya.mindstack.service;
+package dev.abhaya.mindstack.service.auth;
 
-import dev.abhaya.mindstack.Security.JWTService;
-import dev.abhaya.mindstack.exception.customException.CustomMessageException;
 import dev.abhaya.mindstack.model.RefreshToken;
 import dev.abhaya.mindstack.model.StackUser;
 import dev.abhaya.mindstack.repository.RefreshTokenRepository;
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.UUID;
 
 @Service
