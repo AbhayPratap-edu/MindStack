@@ -9,16 +9,18 @@ import java.time.LocalDateTime;
 public class ApiError {
 
     private LocalDateTime timeStamp;
-    private String error;
-    private HttpStatus status;
+    private String message;
+    private int status;
+    //private String path;
 
     public ApiError(){
         this.timeStamp = LocalDateTime.now();
     }
 
-    public ApiError(String error, HttpStatus statusCode){
+    public ApiError(String error, int statusCode){
         this();
-        this.error = error;
+        this.message = error;
         this.status = statusCode;
+
     }
 }

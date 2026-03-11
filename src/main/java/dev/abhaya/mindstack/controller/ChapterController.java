@@ -3,6 +3,7 @@ package dev.abhaya.mindstack.controller;
 
 import dev.abhaya.mindstack.dto.chapter.*;
 import dev.abhaya.mindstack.service.ChapterService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +25,7 @@ public class ChapterController {
 
     @PostMapping("/notebooks/{notebookId}/chapters")
     public ResponseEntity<ChapterIndexResponse> addChapter(@PathVariable Long notebookId,
-                                                           @RequestBody AddChapterRequest addChapterRequest){
+                                                           @Valid @RequestBody AddChapterRequest addChapterRequest){
         return ResponseEntity.ok().body(chapterService.addChapter(notebookId, addChapterRequest));
     }
 

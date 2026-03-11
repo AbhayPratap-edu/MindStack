@@ -4,6 +4,7 @@ import dev.abhaya.mindstack.dto.auth.*;
 import dev.abhaya.mindstack.service.auth.AuthService;
 import dev.abhaya.mindstack.service.auth.RefreshTokenCookieService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +20,14 @@ public class AuthController {
     private final RefreshTokenCookieService refreshTokenCookieService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signUp(@RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequest signUpRequest){
 
         authService.signUp(signUpRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginApiResponse> login(@RequestBody LoginUserRequest loginUserRequest,
+    public ResponseEntity<LoginApiResponse> login(@Valid @RequestBody LoginUserRequest loginUserRequest,
                                                        HttpServletResponse httpServletResponse) {
 
         AuthResponse loginResponse = authService.login(loginUserRequest);

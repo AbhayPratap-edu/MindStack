@@ -1,5 +1,7 @@
 package dev.abhaya.mindstack.config;
 
+import dev.abhaya.mindstack.Security.jwt.CustomAccessDeniedHandler;
+import dev.abhaya.mindstack.Security.jwt.JwtAuthenticationEntryPoint;
 import dev.abhaya.mindstack.Security.jwt.JwtAuthenticationFilter;
 import dev.abhaya.mindstack.Security.oauth2.OAuth2LoginSuccessHandler;
 import dev.abhaya.mindstack.Security.oauth2.StackOAuth2UserService;
@@ -26,6 +28,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class StackSecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
@@ -48,10 +53,8 @@ public class StackSecurityConfiguration {
 
                 .exceptionHandling(ex ->
                         ex
-                                .authenticationEntryPoint(
-                                        (request, response, authException)
-                                                -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-                                )
+                                .authenticationEntryPoint(authenticationEntryPoint)
+                                .accessDeniedHandler(accessDeniedHandler)
                 )
 
                 .csrf(csrfConfig ->

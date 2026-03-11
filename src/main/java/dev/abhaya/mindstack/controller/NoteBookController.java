@@ -3,6 +3,7 @@ package dev.abhaya.mindstack.controller;
 import dev.abhaya.mindstack.dto.notebook.NoteBookRequest;
 import dev.abhaya.mindstack.dto.notebook.NoteBookResponse;
 import dev.abhaya.mindstack.service.NoteBookService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +33,7 @@ public class NoteBookController {
     }
 
     @PostMapping
-    public ResponseEntity<NoteBookResponse> createNoteBook(@RequestBody NoteBookRequest noteBookRequest,
+    public ResponseEntity<NoteBookResponse> createNoteBook(@Valid @RequestBody NoteBookRequest noteBookRequest,
                                                            Authentication authentication){
         return ResponseEntity.ok(noteBookService.createNoteBook(noteBookRequest,authentication));
     }
@@ -45,7 +46,7 @@ public class NoteBookController {
 
     @PutMapping("/{Id}")
     public ResponseEntity<NoteBookResponse> updateNoteBook(@PathVariable Long Id,
-                                                   @RequestBody NoteBookRequest noteBookRequest){
+                                                   @Valid @RequestBody NoteBookRequest noteBookRequest){
         return new ResponseEntity<>(noteBookService.updateNoteBook(Id,noteBookRequest), HttpStatus.OK);
     }
 
