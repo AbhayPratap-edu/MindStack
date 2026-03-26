@@ -43,6 +43,7 @@ public class StackSecurityConfiguration {
 
                         //public
                         .requestMatchers(
+                                "/",
                                 "/auth/signup",
                                 "/auth/login",
                                 "/auth/refresh",

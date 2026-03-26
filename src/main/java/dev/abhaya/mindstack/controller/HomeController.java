@@ -20,7 +20,7 @@ public class HomeController {
 
     @GetMapping
     public String HomePage() {
-        return "Hello World";
+        return "Welcome to MindStack";
     }
 
 
