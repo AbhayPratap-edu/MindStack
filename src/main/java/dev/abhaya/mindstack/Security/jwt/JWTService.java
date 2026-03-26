@@ -37,7 +37,7 @@ public class JWTService {
         List<String>  permissionNames = permissions.stream().map(Enum::name).toList();
 
         return Jwts.builder()
-                .subject(stackUser.getUserID().toString())
+                .subject(stackUser.getUserId().toString())
                 .claim("email",stackUser.getEmail())
                 .claim("role",stackUser.getRole().name())
                 .claim("permissions",permissionNames)
