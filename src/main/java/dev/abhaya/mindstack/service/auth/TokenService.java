@@ -20,7 +20,7 @@ public class TokenService {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(stackUser);
 
         return new AuthResponse(stackUser
-                .getUserID(),
+                .getUserId(),
                 accessToken,
                 refreshToken.getToken());
     }
