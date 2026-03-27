@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@RequiredArgsConstructor
 @NoArgsConstructor
 public class EmailToken {
 
