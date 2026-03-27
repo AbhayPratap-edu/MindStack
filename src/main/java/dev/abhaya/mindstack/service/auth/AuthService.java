@@ -3,15 +3,15 @@ package dev.abhaya.mindstack.service.auth;
 import dev.abhaya.mindstack.dto.auth.AuthResponse;
 import dev.abhaya.mindstack.dto.auth.LoginUserRequest;
 import dev.abhaya.mindstack.dto.auth.SignUpRequest;
+import dev.abhaya.mindstack.exception.customException.CustomMessageException;
 import dev.abhaya.mindstack.exception.customException.UserAlreadyExistsException;
-import dev.abhaya.mindstack.model.AuthProvider;
-import dev.abhaya.mindstack.model.RefreshToken;
-import dev.abhaya.mindstack.model.Role;
-import dev.abhaya.mindstack.model.StackUser;
+import dev.abhaya.mindstack.model.*;
+import dev.abhaya.mindstack.repository.EmailTokenRepository;
 import dev.abhaya.mindstack.repository.StackUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,21 +28,28 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserIdentityResolver userIdentityResolver;
     private final TokenService tokenService;
+    private final EmailVerificationService emailService;
+    private final EmailTokenRepository emailTokenRepository;
 
     public void signUp(SignUpRequest signUpRequest) {
 
         if(stackUserRepository.findByEmail(signUpRequest.getEmail()).isPresent())
             throw new UserAlreadyExistsException("Cannot signup, user already exits with "+signUpRequest.getEmail());
 
+        String email = signUpRequest.getEmail();
+
+        EmailToken emailToken = emailTokenRepository.findByEmailAndVerifiedTrue(email)
+                .orElseThrow(() -> new CustomMessageException("Email not Verified"));
+
         StackUser newStackUser = StackUser.builder()
-                .email(signUpRequest.getEmail())
+                .email(email)
                 .password(passwordEncoder.encode(signUpRequest.getPassword()))
                 .authProvider(AuthProvider.LOCAL)
                 .role(Role.USER)
                 .build();
 
-
         stackUserRepository.save(newStackUser);
+        emailTokenRepository.delete(emailToken);
 
     }
 
@@ -97,4 +104,17 @@ public class AuthService {
             refreshTokenService.revokeRefreshToken(refreshToken);
         }
     }
+
+    public void deleteAccount(){
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+        Long userId = Long.valueOf(authentication.getName());
+
+        StackUser user = stackUserRepository.findById(userId)
+                .orElseThrow(() -> new CustomMessageException("User not found"));
+
+        stackUserRepository.deleteById(userId);
+    }
+
 }

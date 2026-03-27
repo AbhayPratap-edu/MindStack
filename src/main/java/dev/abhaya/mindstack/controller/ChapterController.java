@@ -35,9 +35,10 @@ public class ChapterController {
     }
 
     @PatchMapping("/chapters/{chapterId}")
-    public ResponseEntity<UpdateContentResponse> updateContent(@PathVariable Long chapterId,
+    public ResponseEntity<String> updateContent(@PathVariable Long chapterId,
                                                                @RequestBody UpdateContentRequest updateContentRequest){
-        return ResponseEntity.ok().body(chapterService.updateContent(chapterId,updateContentRequest));
+        chapterService.updateContent(chapterId,updateContentRequest);
+        return ResponseEntity.ok().body("Content updated");
 
     }
 

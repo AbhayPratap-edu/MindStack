@@ -71,13 +71,12 @@ public class ChapterService {
     }
 
     @PreAuthorize("hasAuthority('CHAPTERS_UPDATE') and @chapterSecurity.isOwner(#chapterId, authentication)")
-    public UpdateContentResponse updateContent(Long chapterId, UpdateContentRequest updateContentRequest) {
+    public void updateContent(Long chapterId, UpdateContentRequest updateContentRequest) {
 
         Chapter chapter = chapterRepository.findById(chapterId).
                 orElseThrow( () -> new EntityNotFoundException("Chapter Not Found") );
         chapter.setContent(updateContentRequest.getContent());
         chapterRepository.save(chapter);
-        return new UpdateContentResponse(chapter.getContent());
     }
 
 

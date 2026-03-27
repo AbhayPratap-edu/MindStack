@@ -1,14 +1,23 @@
 package dev.abhaya.mindstack.controller;
 
+import com.sun.security.auth.UserPrincipal;
 import dev.abhaya.mindstack.dto.auth.*;
+import dev.abhaya.mindstack.model.StackUser;
 import dev.abhaya.mindstack.service.auth.AuthService;
+import dev.abhaya.mindstack.service.auth.EmailVerificationService;
 import dev.abhaya.mindstack.service.auth.RefreshTokenCookieService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/auth")
@@ -18,9 +27,23 @@ public class AuthController {
 
     private final AuthService authService;
     private final RefreshTokenCookieService refreshTokenCookieService;
+    private final EmailVerificationService emailService;
+
+    @PostMapping("/register")
+    public ResponseEntity<String> registerWithEmail(@Valid @RequestBody RegisterEmailRequest emailRequest){
+        emailService.sendVerificationEmail(emailRequest.getEmail());
+        return ResponseEntity.ok("Verification Email sent");
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<Void> verifyEmail(@RequestParam String emailToken){
+        emailService.verifyEmail(emailToken);
+        URI redirectUri = URI.create("http://localhost:3000/verified");
+        return ResponseEntity.ok().location(redirectUri).build();
+    }
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<Void> signup(@Valid @RequestBody SignUpRequest signUpRequest){
 
         authService.signUp(signUpRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -66,6 +89,13 @@ public class AuthController {
         authService.logout(refreshToken);
         refreshTokenCookieService.clearRefreshTokenCookie(httpServletResponse);
 
+        return ResponseEntity.ok().build();
+
+    }
+
+    @DeleteMapping("/delete/account")
+    public ResponseEntity<Void> deleteAccount() {
+        authService.deleteAccount();
         return ResponseEntity.ok().build();
 
     }
