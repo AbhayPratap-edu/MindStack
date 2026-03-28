@@ -6,6 +6,7 @@ import dev.abhaya.mindstack.repository.EmailTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Async
 public class EmailVerificationService {
 
     private final JavaMailSender mailSender;
@@ -26,6 +28,7 @@ public class EmailVerificationService {
         emailToken.setToken(token);
         emailToken.setEmail(email);
         emailToken.setExpiry(LocalDateTime.now().plusMinutes(15));
+        System.out.println(emailTokenRepository.save(emailToken));
         emailTokenRepository.save(emailToken);
 
         String link = "https://mindstack-ubuy.onrender.com/auth/verify?token=" + token;
@@ -35,7 +38,12 @@ public class EmailVerificationService {
         message.setSubject("Verification Email");
         message.setText("Click here to verify your email.\n" + link);
 
+        //mailSender.send(message);
+        System.out.println("BEFORE MAIL SEND");
+
         mailSender.send(message);
+
+        System.out.println("AFTER MAIL SEND");
     }
 
     public void verifyEmail(String token) {

@@ -18,7 +18,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins(frontendUrl)
+                        .allowedOrigins("http://localhost:5173",frontendUrl)
                         .allowedMethods("GET","POST","PUT","DELETE")
                         .allowedHeaders("*")//Allow the frontend to send any HTTP headers in the request
                         .allowCredentials(true);//Allow browser to send cookies/credentials in cross-origin requests

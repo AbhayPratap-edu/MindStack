@@ -34,6 +34,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerWithEmail(@Valid @RequestBody RegisterEmailRequest emailRequest){
+        System.out.println("before sending registration email " );
         emailService.sendVerificationEmail(emailRequest.getEmail());
         return ResponseEntity.ok("Verification Email sent");
     }
