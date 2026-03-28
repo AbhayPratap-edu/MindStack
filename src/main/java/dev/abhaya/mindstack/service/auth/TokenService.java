@@ -24,4 +24,14 @@ public class TokenService {
                 accessToken,
                 refreshToken.getToken());
     }
+
+    public AuthResponse issueRefreshToken(StackUser stackUser) {
+
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(stackUser);
+
+        return new AuthResponse(stackUser
+                .getUserId(),
+                null,
+                refreshToken.getToken());
+    }
 }

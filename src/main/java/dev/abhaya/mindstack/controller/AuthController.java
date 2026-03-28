@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,8 @@ public class AuthController {
     private final AuthService authService;
     private final RefreshTokenCookieService refreshTokenCookieService;
     private final EmailVerificationService emailService;
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @PostMapping("/register")
     public ResponseEntity<String> registerWithEmail(@Valid @RequestBody RegisterEmailRequest emailRequest){
@@ -36,10 +39,10 @@ public class AuthController {
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<Void> verifyEmail(@RequestParam String emailToken){
-        emailService.verifyEmail(emailToken);
-        URI redirectUri = URI.create("http://localhost:3000/verified");
-        return ResponseEntity.ok().location(redirectUri).build();
+    public ResponseEntity<Void> verifyEmail(@RequestParam String token){
+        emailService.verifyEmail(token);
+        URI redirectUri = URI.create(frontendUrl + "/verified");
+        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
     }
 
     @PostMapping("/signup")

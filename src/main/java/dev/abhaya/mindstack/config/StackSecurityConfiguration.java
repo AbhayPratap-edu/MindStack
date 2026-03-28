@@ -37,6 +37,15 @@ public class StackSecurityConfiguration {
                                             StackOAuth2UserService stackOAuth2UserService,
                                             OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) throws Exception{
         httpSecurity
+                .cors(cors -> {} )
+                .csrf(csrfConfig ->
+                        csrfConfig.disable())//disabled for simplicity not for production
+
+                .sessionManagement( sessionConfig ->
+                        sessionConfig
+                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+
                 .authorizeHttpRequests( auth -> auth
 
                         //Spring stops at the first matching rule
@@ -63,12 +72,8 @@ public class StackSecurityConfiguration {
                                 .accessDeniedHandler(accessDeniedHandler)
                 )
 
-                .csrf(csrfConfig ->
-                        csrfConfig.disable())//disabled for simplicity not for production
 
-                .sessionManagement( sessionConfig ->
-                        sessionConfig
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
 
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
