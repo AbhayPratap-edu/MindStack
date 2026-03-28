@@ -38,12 +38,13 @@ public class EmailVerificationService {
         message.setSubject("Verification Email");
         message.setText("Click here to verify your email.\n" + link);
 
-        //mailSender.send(message);
-        System.out.println("BEFORE MAIL SEND");
+        try {
+            mailSender.send(message);
+        }
+        catch (Exception e) {
+            throw new CustomMessageException("Mail server Error: Email verification failed");
+        }
 
-        mailSender.send(message);
-
-        System.out.println("AFTER MAIL SEND");
     }
 
     public void verifyEmail(String token) {
