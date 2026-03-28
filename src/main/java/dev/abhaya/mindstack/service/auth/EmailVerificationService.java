@@ -54,8 +54,6 @@ public class EmailVerificationService {
 
         Mail mail = buildVerificationEmail(userEmail, link);
 
-
-
         try {
             sendMail(mail);// 3. Send via SendGrid
         }

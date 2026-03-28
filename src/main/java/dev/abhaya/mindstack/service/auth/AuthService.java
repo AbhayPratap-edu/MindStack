@@ -28,7 +28,6 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserIdentityResolver userIdentityResolver;
     private final TokenService tokenService;
-    private final EmailVerificationService emailService;
     private final EmailTokenRepository emailTokenRepository;
 
     public void signUp(SignUpRequest signUpRequest) {
