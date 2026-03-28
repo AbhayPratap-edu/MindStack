@@ -41,7 +41,7 @@ public class AuthController {
     @GetMapping("/verify")
     public ResponseEntity<Void> verifyEmail(@RequestParam String token){
         emailService.verifyEmail(token);
-        URI redirectUri = URI.create(frontendUrl + "/verified");
+        URI redirectUri = URI.create(frontendUrl );
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
     }
 

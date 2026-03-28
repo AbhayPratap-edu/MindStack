@@ -28,7 +28,7 @@ public class EmailVerificationService {
         emailToken.setExpiry(LocalDateTime.now().plusMinutes(15));
         emailTokenRepository.save(emailToken);
 
-        String link = "http://localhost:8080/auth/verify?token=" + token;
+        String link = "https://mindstack-ubuy.onrender.com/auth/verify?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
