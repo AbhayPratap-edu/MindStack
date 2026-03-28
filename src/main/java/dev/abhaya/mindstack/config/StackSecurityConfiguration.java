@@ -47,6 +47,8 @@ public class StackSecurityConfiguration {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
+                                "auth/register",
+                                "auth/verify",
                                 "/auth/signup",
                                 "/auth/login",
                                 "/auth/refresh",
