@@ -43,8 +43,11 @@ public class EmailVerificationService {
         // 1. Save token
         String token = UUID.randomUUID().toString();
 
+
         //Clean old/expired email tokens
-        emailTokenRepository.deleteByEmail(userEmail);
+        if(emailTokenRepository.findByEmail(userEmail).isPresent()) {
+            emailTokenRepository.deleteByEmail(userEmail);
+        }
 
         EmailToken emailToken = new EmailToken();
         emailToken.setToken(token);
