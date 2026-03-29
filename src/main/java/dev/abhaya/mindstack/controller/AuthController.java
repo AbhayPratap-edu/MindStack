@@ -1,24 +1,19 @@
 package dev.abhaya.mindstack.controller;
 
-import com.sun.security.auth.UserPrincipal;
 import dev.abhaya.mindstack.dto.auth.*;
-import dev.abhaya.mindstack.model.StackUser;
 import dev.abhaya.mindstack.service.auth.AuthService;
 import dev.abhaya.mindstack.service.auth.EmailVerificationService;
 import dev.abhaya.mindstack.service.auth.RefreshTokenCookieService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -34,16 +29,16 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerWithEmail(@Valid @RequestBody RegisterEmailRequest emailRequest){
-        System.out.println("before sending registration email " );
         emailService.sendVerificationEmail(emailRequest.getEmail());
         return ResponseEntity.ok("Verification Email sent");
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<Void> verifyEmail(@RequestParam String token){
-        emailService.verifyEmail(token);
-        URI redirectUri = URI.create(frontendUrl );
-        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
+    public ResponseEntity<Map<String, String>> verifyEmail(@RequestParam String token){
+        String email = emailService.verifyEmail(token);
+        //URI redirectUri = URI.create(frontendUrl );
+        //return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
+        return ResponseEntity.ok(Map.of("email", email));
     }
 
     @PostMapping("/signup")

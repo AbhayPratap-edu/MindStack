@@ -43,6 +43,9 @@ public class EmailVerificationService {
         // 1. Save token
         String token = UUID.randomUUID().toString();
 
+        //Clean old/expired email tokens
+        emailTokenRepository.deleteByEmail(userEmail);
+
         EmailToken emailToken = new EmailToken();
         emailToken.setToken(token);
         emailToken.setEmail(userEmail);
@@ -50,7 +53,7 @@ public class EmailVerificationService {
         emailTokenRepository.save(emailToken);
 
         // 2. Build verification link
-        String link = serverHostUrl + "/auth/verify?token=" + token;
+        String link = frontendUrl + "/verify?token=" + token;
 
         Mail mail = buildVerificationEmail(userEmail, link);
 
@@ -63,7 +66,7 @@ public class EmailVerificationService {
 
     }
 
-    public void verifyEmail(String token) {
+    public String verifyEmail(String token) {
 
         EmailToken emailToken = emailTokenRepository.findByToken(token)
                 .orElseThrow( () -> new CustomMessageException("Invalid Email Token"));
@@ -74,6 +77,8 @@ public class EmailVerificationService {
 
         emailToken.setVerified(true);
         emailTokenRepository.save(emailToken);
+
+        return emailToken.getEmail();
 
     }
 

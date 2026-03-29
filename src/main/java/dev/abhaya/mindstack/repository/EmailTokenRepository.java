@@ -11,4 +11,6 @@ public interface EmailTokenRepository extends JpaRepository<EmailToken, Long> {
     Optional<EmailToken> findByEmail(String email);
 
     Optional<EmailToken> findByEmailAndVerifiedTrue(String email);
+
+    void deleteByEmail(String email);
 }
