@@ -13,7 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -40,7 +44,12 @@ public class EmailVerificationService {
     public void sendVerificationEmail(String userEmail) {
 
         // 1. Save token
-        String token = UUID.randomUUID().toString();
+        //String token = UUID.randomUUID().toString(); -> UUID is predictable enough for some attack models
+
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[32];
+        random.nextBytes(bytes);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 
 
         //Clean old/expired email tokens
@@ -52,7 +61,7 @@ public class EmailVerificationService {
         EmailToken emailToken = new EmailToken();
         emailToken.setToken(token);
         emailToken.setEmail(userEmail);
-        emailToken.setExpiry(LocalDateTime.now().plusMinutes(15));
+        emailToken.setExpiry(Instant.now().plus(15, ChronoUnit.MINUTES));
 
         emailTokenRepository.save(emailToken);
 
@@ -72,7 +81,7 @@ public class EmailVerificationService {
         EmailToken emailToken = emailTokenRepository.findByToken(token)
                 .orElseThrow( () -> new CustomMessageException("Invalid Email Token"));
 
-        if(emailToken.getExpiry().isBefore(LocalDateTime.now())) {
+        if(emailToken.getExpiry().isBefore(Instant.now())) {
             throw new CustomMessageException("Email Token Expired");
         }
 

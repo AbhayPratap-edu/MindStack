@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,5 +22,5 @@ public class EmailToken {
     String  token;
     String email;
     boolean verified = false;
-    LocalDateTime expiry;
+    Instant expiry;
 }

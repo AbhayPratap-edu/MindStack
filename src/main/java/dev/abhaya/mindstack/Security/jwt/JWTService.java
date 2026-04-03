@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +24,8 @@ public class JWTService {
     // You can use any random key, but it must be a 256-bit key (32 bytes) for HMAC-SHA256
     @Value("${jwt.secretKey}")
     private String jwtSecreteKey ;
-    private final long ACCESS_TOKEN_VALIDITY = 15 * 60 * 1000; // 15 minutes
+    private final long ACCESS_TOKEN_VALIDITY = 15 * 60; // 15 minutes
+
 
     private SecretKey getSigningKey(){
         return Keys.hmacShaKeyFor(jwtSecreteKey.getBytes(StandardCharsets.UTF_8));
@@ -33,16 +35,19 @@ public class JWTService {
     public String createAccessToken(StackUser stackUser){
 
         Set<Permission> permissions = RolePermissionMapping.getPermissions(stackUser.getRole());
-
         List<String>  permissionNames = permissions.stream().map(Enum::name).toList();
+
+        Instant now = Instant.now();
+        Instant expiry = now.plusSeconds(ACCESS_TOKEN_VALIDITY);
+
 
         return Jwts.builder()
                 .subject(stackUser.getUserId().toString())
                 .claim("email",stackUser.getEmail())
                 .claim("role",stackUser.getRole().name())
                 .claim("permissions",permissionNames)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis()+ACCESS_TOKEN_VALIDITY)) // Valid for 1 Minute
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiry)) // Valid for 15 Minute
                 .signWith(getSigningKey())
                 .compact();
     }

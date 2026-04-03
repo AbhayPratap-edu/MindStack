@@ -6,7 +6,9 @@ import dev.abhaya.mindstack.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -14,13 +16,19 @@ import java.util.UUID;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final long refreshTokenDurationMs = 7 * 24 * 60* 60 * 1000; // 7 days , 7 * 24 * 60 * 60 * 1000
+    private final long REFRESH_TOKEN_VALIDITY = 7 * 24 * 60* 60 ; // 7 days ,
 
     public RefreshToken createRefreshToken(StackUser stackUser){
+
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[32];
+        random.nextBytes(bytes);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+
         RefreshToken refreshToken = RefreshToken.builder()
                 .stackUser(stackUser)
-                .token(UUID.randomUUID().toString())
-                .expiresAt(Instant.now().plusMillis(refreshTokenDurationMs))
+                .token(token)
+                .expiresAt(Instant.now().plusSeconds(REFRESH_TOKEN_VALIDITY))
                 .revoked(false)
                 .build();
         return refreshTokenRepository.save(refreshToken);
