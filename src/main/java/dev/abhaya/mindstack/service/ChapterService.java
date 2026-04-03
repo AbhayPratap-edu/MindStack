@@ -6,7 +6,7 @@ import dev.abhaya.mindstack.model.NoteBook;
 import dev.abhaya.mindstack.repository.ChapterRepository;
 import dev.abhaya.mindstack.repository.NoteBookRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 

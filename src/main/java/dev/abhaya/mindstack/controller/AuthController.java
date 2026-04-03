@@ -2,7 +2,7 @@ package dev.abhaya.mindstack.controller;
 
 import dev.abhaya.mindstack.dto.auth.*;
 import dev.abhaya.mindstack.service.auth.AuthService;
-import dev.abhaya.mindstack.service.auth.EmailVerificationService;
+import dev.abhaya.mindstack.service.mailService.EmailVerificationService;
 import dev.abhaya.mindstack.service.auth.RefreshTokenCookieService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.Map;
 
 @RestController

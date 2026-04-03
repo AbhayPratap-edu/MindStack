@@ -1,4 +1,4 @@
-package dev.abhaya.mindstack.service.auth;
+package dev.abhaya.mindstack.service.mailService;
 
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -8,13 +8,11 @@ import dev.abhaya.mindstack.model.EmailToken;
 import dev.abhaya.mindstack.repository.EmailTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import com.sendgrid.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -23,6 +21,7 @@ import java.util.UUID;
 public class EmailVerificationService {
 
     private final EmailTokenRepository emailTokenRepository;
+    private final MailService mailService;
     private static final Logger log = LoggerFactory.getLogger(EmailVerificationService.class);
 
     @Value("${SENDGRID_API_KEY}")//environment variable comes from os/render
@@ -37,7 +36,7 @@ public class EmailVerificationService {
     @Value("${app.frontend.url}")//application property Comes from:application.properties OR env (if mapped)
     private String frontendUrl;
 
-    @Async
+    @Transactional
     public void sendVerificationEmail(String userEmail) {
 
         // 1. Save token
@@ -45,14 +44,16 @@ public class EmailVerificationService {
 
 
         //Clean old/expired email tokens
-        if(emailTokenRepository.findByEmail(userEmail).isPresent()) {
-            emailTokenRepository.deleteByEmail(userEmail);
-        }
+        emailTokenRepository.deleteByEmail(userEmail);
+        //synchronize any changes made to entities managed by persistence context with underlying database
+        emailTokenRepository.flush();
+
 
         EmailToken emailToken = new EmailToken();
         emailToken.setToken(token);
         emailToken.setEmail(userEmail);
         emailToken.setExpiry(LocalDateTime.now().plusMinutes(15));
+
         emailTokenRepository.save(emailToken);
 
         // 2. Build verification link
@@ -60,12 +61,9 @@ public class EmailVerificationService {
 
         Mail mail = buildVerificationEmail(userEmail, link);
 
-        try {
-            sendMail(mail);// 3. Send via SendGrid
-        }
-        catch (IOException e) {
-            log.error("Error while sending email via SendGrid", e);
-        }
+
+        mailService.sendMail(mail);
+
 
     }
 
@@ -107,18 +105,5 @@ public class EmailVerificationService {
         return new Mail(from, subject, to, body);
     }
 
-    private void sendMail(Mail mail) throws IOException {
-        SendGrid sendGrid = new SendGrid(sendGridApiKey);
-        Request request = new Request();
 
-        request.setMethod(Method.POST);
-        request.setEndpoint("mail/send");
-        request.setBody(mail.build());
-
-        Response response = sendGrid.api(request);
-
-        log.info("SendGrid status: {}, body: {}",
-                response.getStatusCode(), response.getBody());
-
-    }
 }
