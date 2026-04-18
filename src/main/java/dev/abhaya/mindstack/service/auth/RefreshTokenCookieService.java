@@ -12,7 +12,6 @@ public class RefreshTokenCookieService {
     private static final String COOKIE_NAME = "refresh_token";
     private static final String COOKIE_PATH = "/auth/refresh";
     private static final int MAX_AGE = 7 * 24 * 60 * 60;
-    private final TokenService tokenService;
 
     public void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
 

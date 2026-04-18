@@ -43,17 +43,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         StackUser stackUser = userIdentityResolver.resolveFromOAuth(oAuth2User);
 
-        AuthResponse authResponse = tokenService.issueRefreshToken(stackUser);
-
-        Cookie refreshTokenCookie = new Cookie("refresh_token", authResponse.getRefreshToken());
-
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/auth/refresh");
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
-        refreshTokenCookie.setSecure(true);   // production
-        refreshTokenCookie.setAttribute("SameSite", "None");
-
-        response.addCookie(refreshTokenCookie);
+        tokenService.issueRefreshToken(stackUser,response);
 
         response.sendRedirect(frontendUrl + "/oauth-success");
 

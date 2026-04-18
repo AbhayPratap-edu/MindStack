@@ -26,14 +26,10 @@ public class TokenService {
     }
 
     //this will create refresh token & set in cookie
-    public AuthResponse issueRefreshToken(StackUser stackUser, HttpServletResponse httpServletResponse) {
+    public void issueRefreshToken(StackUser stackUser, HttpServletResponse httpServletResponse) {
 
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(stackUser);
         refreshTokenCookieService.addRefreshTokenCookie(httpServletResponse,refreshToken.getToken());
 
-
-        return new AuthResponse(stackUser
-                .getUserId(),
-                null);
     }
 }
