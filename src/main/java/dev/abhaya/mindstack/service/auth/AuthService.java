@@ -8,6 +8,7 @@ import dev.abhaya.mindstack.exception.customException.UserAlreadyExistsException
 import dev.abhaya.mindstack.model.*;
 import dev.abhaya.mindstack.repository.EmailTokenRepository;
 import dev.abhaya.mindstack.repository.StackUserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,7 @@ public class AuthService {
     private final UserIdentityResolver userIdentityResolver;
     private final TokenService tokenService;
     private final EmailTokenRepository emailTokenRepository;
+    private final RefreshTokenCookieService refreshTokenCookieService;
 
     public void signUp(SignUpRequest signUpRequest) {
 
@@ -69,7 +71,7 @@ public class AuthService {
     //principal = UserDetails
     //credentials = null
     //authenticated = true
-    public AuthResponse login(LoginUserRequest loginUserRequest) {
+    public AuthResponse login(LoginUserRequest loginUserRequest, HttpServletResponse httpServletResponse) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -82,18 +84,21 @@ public class AuthService {
         StackUser stackUser = userIdentityResolver.resolveFromLocal(userDetails);
         String email = userDetails.getUsername();
 
-        return tokenService.issueTokens(stackUser);
+        tokenService.issueRefreshToken(stackUser,httpServletResponse);
+
+        return tokenService.issueAccessTokens(stackUser);
 
     }
 
-    public AuthResponse rotateRefreshToken(String oldRefreshToken) {
+    public AuthResponse rotateRefreshToken(String oldRefreshToken, HttpServletResponse httpServletResponse) {
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(oldRefreshToken);
         StackUser stackUser = refreshToken.getStackUser();
 
         //Rotation
         refreshTokenService.revokeRefreshToken(oldRefreshToken);
+        tokenService.issueRefreshToken(stackUser,httpServletResponse);
 
-        return tokenService.issueTokens(stackUser);
+        return tokenService.issueAccessTokens(stackUser);
 
     }
 

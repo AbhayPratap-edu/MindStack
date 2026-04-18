@@ -48,16 +48,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginApiResponse> login(@Valid @RequestBody LoginUserRequest loginUserRequest,
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginUserRequest loginUserRequest,
                                                        HttpServletResponse httpServletResponse) {
 
-        AuthResponse loginResponse = authService.login(loginUserRequest);
-        refreshTokenCookieService.addRefreshTokenCookie(httpServletResponse,loginResponse.getRefreshToken());
+        AuthResponse loginResponse = authService.login(loginUserRequest,httpServletResponse);
 
-        return ResponseEntity.ok(new LoginApiResponse
-                        (loginResponse.getUserId(),
-                        loginResponse.getAccessToken())
-        );
+        return ResponseEntity.ok(loginResponse);
+
     }
 
     @PostMapping("/refresh")
@@ -70,8 +67,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        AuthResponse loginResponse = authService.rotateRefreshToken(refreshToken);
-        refreshTokenCookieService.addRefreshTokenCookie(httpServletResponse,loginResponse.getRefreshToken());
+        AuthResponse loginResponse = authService.rotateRefreshToken(refreshToken, httpServletResponse);
 
         return ResponseEntity.ok(new LoginApiResponse(
                         loginResponse.getUserId(),
