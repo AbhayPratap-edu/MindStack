@@ -62,7 +62,8 @@ public class StackSecurityConfiguration {
                                 "/auth/login",
                                 "/auth/refresh",
                                 "/login/oauth2/**",
-                                "/oauth2/**")
+                                "/oauth2/**",
+                                "/test/db/**")
                         .permitAll()
                         .anyRequest().authenticated())
 

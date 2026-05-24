@@ -38,7 +38,7 @@ public class ChapterService {
                 .toList();
     }
 
-    @PreAuthorize("hasAuthority('CHAPTERS_CREATE') and @noteBookSecurity.isOwner(#notebookId, authentication)")
+    @PreAuthorize("hasAuthority('CHAPTER_CREATE') and @noteBookSecurity.isOwner(#notebookId, authentication)")
     public ChapterIndexResponse addChapter(Long notebookId, AddChapterRequest addChapterRequest) {
 
         Chapter newChapter = new Chapter();
@@ -60,7 +60,7 @@ public class ChapterService {
 
     }
 
-    @PreAuthorize("hasAuthority('CHAPTERS_VIEW') and @chapterSecurity.isOwner(#chapterId, authentication)")
+    @PreAuthorize("hasAuthority('CHAPTER_VIEW') and @chapterSecurity.isOwner(#chapterId, authentication)")
     public ChapterResponse getChapter(Long chapterId) {
         Chapter chapter = chapterRepository.findById(chapterId).
                 orElseThrow( () -> new EntityNotFoundException("Chapter Not Found") );
@@ -70,7 +70,7 @@ public class ChapterService {
         );
     }
 
-    @PreAuthorize("hasAuthority('CHAPTERS_UPDATE') and @chapterSecurity.isOwner(#chapterId, authentication)")
+    @PreAuthorize("hasAuthority('CHAPTER_UPDATE') and @chapterSecurity.isOwner(#chapterId, authentication)")
     public void updateContent(Long chapterId, UpdateContentRequest updateContentRequest) {
 
         Chapter chapter = chapterRepository.findById(chapterId).
@@ -80,7 +80,7 @@ public class ChapterService {
     }
 
 
-    @PreAuthorize("hasAuthority('CHAPTERS_DELETE') and @chapterSecurity.isOwner(#chapterId, authentication)")
+    @PreAuthorize("hasAuthority('CHAPTER_DELETE') and @chapterSecurity.isOwner(#chapterId, authentication)")
     public void deleteChapter(Long chapterId) {
         chapterRepository.deleteById(chapterId);
     }
